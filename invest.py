@@ -343,6 +343,4 @@ isn: {self.asset_choice['isn']}
                     'rub_prise': rub_prise,
                     'price_increase': price_increase}
         except KeyError as er:
-            print(er)
-            print(sec_id_choice)
-            exit()
+            raise Exception(er)
