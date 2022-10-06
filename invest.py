@@ -21,6 +21,7 @@ import pandas
 import math
 import yfinance as yf
 import datetime
+from time import sleep
 from pathlib import Path
 from datetime import date, timedelta, timezone
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
@@ -266,8 +267,11 @@ isn: {self.asset_choice['isn']}
 
             if loop and loop.is_running():
                 loop.create_task(acton())
+                sleep(4)
             else:
                 asyncio.run(acton())
+                sleep(4)
+
 
     def _get_msb_stock_exchange(self):
         # open JSON
