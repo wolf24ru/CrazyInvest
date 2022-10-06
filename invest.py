@@ -71,13 +71,11 @@ class CrazyInvest:
 
             case 'bond':
                 if ('MB' in self.stock_market) & ('SPB' in self.stock_market):
-                    self.choice_table = pandas.concat([self.spb_table_stock,
-                                                       self.main_table_stocks_ru],
-                                                      ignore_index=True).sample().values[0]
+                    self.choice_table = self.main_table_bonds_ru.sample().values[0]
                 elif 'MB' in self.stock_market:
                     self.choice_table = self.main_table_bonds_ru.sample().values[0]
                 elif 'SPB' in self.stock_market:
-                    self.choice_table = self.spb_table_bond.sample().values[0]
+                    raise Exception('At the moment you cannot use bonds from the St. Petersburg Stock Exchange')
                 else:
                     print("O no. You didn't choose any stock market")
                     raise Exception('stock market not chosen')
@@ -318,8 +316,8 @@ isn: {self.asset_choice['isn']}
         spb_table_stock = spb_table[(spb_table.s_sec_type_name_dop == 'Акции')]
         self.spb_table_stock = spb_table_stock[['SECID', 'SECNAME', 'ISIN']]
 
-        spb_table_bond = spb_table[(spb_table.s_sec_type_name_dop == 'Облигации')]
-        self.spb_table_bond = spb_table_bond[['SECID', 'SECNAME', 'ISIN']]
+        # spb_table_bond = spb_table[(spb_table.s_sec_type_name_dop == 'Облигации')]
+        # self.spb_table_bond = spb_table_bond[['SECID', 'SECNAME', 'ISIN']]
 
     @staticmethod
     def _get_currency_price(currency: str) -> str:
@@ -343,4 +341,7 @@ isn: {self.asset_choice['isn']}
                     'rub_prise': rub_prise,
                     'price_increase': price_increase}
         except KeyError as er:
-            raise Exception(er)
+            if msft.info['regularMarketPrice'] is None :
+                print('f')
+                self.choice()
+            Exception(er)
