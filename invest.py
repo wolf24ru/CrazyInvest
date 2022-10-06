@@ -259,7 +259,15 @@ isn: {self.asset_choice['isn']}
     def file_exist(path: str, acton):
         path = pathlib.Path(path)
         if not path.exists():
-            asyncio.run(acton())
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+
+            if loop and loop.is_running():
+                loop.create_task(acton())
+            else:
+                asyncio.run(acton())
 
     def _get_msb_stock_exchange(self):
         # open JSON
