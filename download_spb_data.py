@@ -28,15 +28,10 @@ async def download_data():
     with requests.get(url_spb, allow_redirects=True) as r:
         print(r.status_code)
         if r.status_code == 200:
-            with open('spb_data/SPB.csv', 'wb') as f:
+            with open(config.cpb_file, 'wb') as f:
                 f.write(r.content)
         else:
-            option = webdriver.ChromeOptions()
-
-            prefs = {"download.default_directory": str(config.cpb_file)}
-            option.add_experimental_option('prefs', prefs)
-
-            driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
+            driver = webdriver.Remote('http://selenium:4444/wd/hub', desired_capabilities=DesiredCapabilities.CHROME)
             driver.get(url_spb)
             time.sleep(5)
             driver.close()
