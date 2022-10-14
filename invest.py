@@ -159,9 +159,9 @@ isn: {self.asset_choice['isn']}
         path_font_second = str(config.font_book)
 
         font_main = ImageFont.truetype(path_font_main, 80)
-        font_secoond = ImageFont.truetype(path_font_second, 80)
+        # font_secoond = ImageFont.truetype(path_font_second, 80)
         font_2_b = ImageFont.truetype(path_font_main, 50)
-        font_2_s = ImageFont.truetype(path_font_second, 50)
+        # font_2_s = ImageFont.truetype(path_font_second, 50)
         font_3_s = ImageFont.truetype(path_font_second, 24)
         font_3_b = ImageFont.truetype(path_font_main, 24)
 
@@ -272,7 +272,6 @@ isn: {self.asset_choice['isn']}
                 asyncio.run(acton())
                 sleep(4)
 
-
     def _get_msb_stock_exchange(self):
         # open JSON
         for file_name in [config.stocks_file, config.bpif_file,
@@ -353,7 +352,7 @@ isn: {self.asset_choice['isn']}
                     'rub_prise': rub_prise,
                     'price_increase': price_increase}
         except KeyError as er:
-            if msft.info['regularMarketPrice'] is None :
+            if msft.info['regularMarketPrice'] is None:
                 print('f')
                 self.choice()
             Exception(er)

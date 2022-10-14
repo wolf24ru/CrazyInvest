@@ -4,7 +4,7 @@ import pathlib
 import requests
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
 
 import config
 
