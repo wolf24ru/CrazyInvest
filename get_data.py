@@ -5,7 +5,7 @@ from datetime import datetime
 from time import sleep
 import logging
 import config
-print('staring')
+
 logging.basicConfig(
     filename=config.path_file / 'logs/log.txt',
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

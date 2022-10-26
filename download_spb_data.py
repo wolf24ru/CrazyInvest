@@ -26,7 +26,6 @@ async def download_data():
     url_spb = 'https://spbexchange.ru/ru/stocks/inostrannye/Instruments.aspx?csv=download'
 
     with requests.get(url_spb, allow_redirects=True) as r:
-        print(r.status_code)
         if r.status_code == 200:
             with open(config.cpb_file, 'wb') as f:
                 f.write(r.content)

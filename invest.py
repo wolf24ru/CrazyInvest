@@ -55,6 +55,9 @@ class CrazyInvest:
                 raise Exception(error_str)
 
     def choice(self):
+        """
+        Выбор рандомного значения
+        """
         match self.asset:
 
             case 'stock':
@@ -224,6 +227,14 @@ isn: {self.asset_choice['isn']}
         return percent
 
     def choice_obj(self, data: list) -> dict:
+        """
+        Выбор конкретной акции
+        Parameters:
+            data: table with assets
+        Returns:
+            dict: dict with random asset's data
+        """
+        # Проверка наличия записей в графе с ценой
         try:
             data_nan = math.isnan(data[3])
         except IndexError:
