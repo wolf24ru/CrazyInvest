@@ -4,7 +4,7 @@ import pathlib
 import requests
 from selenium import webdriver
 from selenium.webdriver import DesiredCapabilities
-# from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.chrome import ChromeDriverManager
 
 import config
 
@@ -24,14 +24,17 @@ def latest_download_file():
 
 async def download_data():
     url_spb = 'https://spbexchange.ru/ru/stocks/inostrannye/Instruments.aspx?csv=download'
-
     with requests.get(url_spb, allow_redirects=True) as r:
-        print(r.status_code)
         if r.status_code == 200:
-            with open(config.cpb_file, 'wb') as f:
+            with open(config.spb_file, 'wb') as f:
                 f.write(r.content)
         else:
-            driver = webdriver.Remote('http://selenium:4444/wd/hub', desired_capabilities=DesiredCapabilities.CHROME)
+            option = webdriver.ChromeOptions()
+
+            prefs = {"download.default_directory": str(config.spb_file)}
+            option.add_experimental_option('prefs', prefs)
+
+            driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
             driver.get(url_spb)
             time.sleep(5)
             driver.close()

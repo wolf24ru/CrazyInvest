@@ -9,4 +9,4 @@ bonds_file = path_file / 'data_json/bonds.json'
 font_heavy = path_file / 'font/Garet-Heavy.ttf'
 font_book = path_file / 'font/Garet-Book.ttf'
 
-cpb_file = path_file / 'spb_data/SPB.csv'
+spb_file = path_file / 'spb_data/SPB.csv'

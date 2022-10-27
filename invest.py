@@ -1,15 +1,3 @@
-"""
-старт https://habr.com/ru/post/495324/
-как работает api на мосбирже https://habr.com/ru/post/486716/
-
-href="https://www.cbr-xml-daily.ru/ API для курсов ЦБ РФ
-
-акции https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities?first=350
-?БПИФ https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQTD/securities?first=500
-ОФЗ https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQOB/securities?first=200
-облигации https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQCB/securities?first=3000
-"""
-
 import asyncio
 import sys
 import json
@@ -312,9 +300,9 @@ isn: {self.asset_choice['isn']}
 
     def _get_spb_stock_exchange(self):
         """Получить данные с питерской биржи"""
-        self.file_exist(config.cpb_file, spbd)
+        self.file_exist(config.spb_file, spbd)
 
-        spb_table = pandas.read_csv(config.cpb_file, sep=';')
+        spb_table = pandas.read_csv(config.spb_file, sep=';')
 
         # название e_full_name
         # код s_RTS_code
