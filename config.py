@@ -6,7 +6,10 @@ bpif_file = path_file / 'data_json/bpif.json'
 ofz_file = path_file / 'data_json/ofz.json'
 bonds_file = path_file / 'data_json/bonds.json'
 
-font_heavy = path_file / 'font/Garet-Heavy.ttf'
-font_book = path_file / 'font/Garet-Book.ttf'
-
 cpb_file = path_file / 'spb_data/SPB.csv'
+
+_for_img = path_file / 'for_img'
+
+vector = _for_img / 'Vector.png'
+green_chart = _for_img / 'green_chart.png'
+red_chart = _for_img / 'red_chart.png'
