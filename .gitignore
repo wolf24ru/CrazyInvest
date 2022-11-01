@@ -4,6 +4,7 @@ __init__.py
 main.py
 test.py
 /data_json/*
+/spb_data/*
 #/img/*
 
 # Byte-compiled / optimized / DLL files

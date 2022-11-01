@@ -31,7 +31,7 @@ async def download_data():
         else:
             option = webdriver.ChromeOptions()
 
-            prefs = {"download.default_directory": str(config.spb_file)}
+            prefs = {"download.default_directory": str(config.path_file / 'spb_data')}
             option.add_experimental_option('prefs', prefs)
 
             driver = webdriver.Chrome(ChromeDriverManager().install(), options=option)
