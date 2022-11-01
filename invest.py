@@ -1,15 +1,3 @@
-"""
-старт https://habr.com/ru/post/495324/
-как работает api на мосбирже https://habr.com/ru/post/486716/
-
-href="https://www.cbr-xml-daily.ru/ API для курсов ЦБ РФ
-
-акции https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities?first=350
-?БПИФ https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQTD/securities?first=500
-ОФЗ https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQOB/securities?first=200
-облигации https://iss.moex.com/iss/engines/stock/markets/bonds/boards/TQCB/securities?first=3000
-"""
-
 import asyncio
 import sys
 import json
@@ -24,7 +12,7 @@ import datetime
 from time import sleep
 from pathlib import Path
 from datetime import date, timedelta, timezone
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 
 path_file = pathlib.Path(__file__).parent.resolve()
 sys.path.append(str(path_file))
@@ -36,9 +24,18 @@ from download_spb_data import download_data as spbd
 
 class CrazyInvest:
     def __init__(self, limit=None, asset: str = 'stock', stock_market: list = ['MB'], tz=timezone.utc):
+        """
+        Инициализация
+
+        Parameters:
+            limit (int): Целочисленный лимит активов
+            asset (str): Вид актива. Доступно 2 варианта:'stock' или 'bond'
+            stock_market (list): Список используемых бирж: MB - МосБиржа; SPB - Питерская Биржа.
+            tz (timezone): Временная зона
+        """
         self.limit = limit
         self._get_spb_stock_exchange()
-        self._get_msb_stock_exchange()
+        self._get_mb_stock_exchange()
         self.asset = asset
         self.date_create = datetime.datetime.now(tz)
         self.stock_market = stock_market
@@ -56,11 +53,12 @@ class CrazyInvest:
 
     def choice(self):
         """
-        Выбор рандомного значения
+        Определения актива и биржи с дальнейшим получением конкретного актива
         """
         match self.asset:
-
+            # Выбор актива
             case 'stock':
+                # выбор биржи
                 if ('MB' in self.stock_market) & ('SPB' in self.stock_market):
                     self.choice_table = pandas.concat([self.spb_table_stock,
                                                        self.main_table_stocks_ru],
@@ -86,10 +84,16 @@ class CrazyInvest:
             case _:
                 raise Exception('incorrect asset name')
 
+        # итоговое получение актива
         self.asset_choice = self.choice_obj(self.choice_table)
 
     @property
     def inform(self) -> str:
+        """
+        Подготовка информации для вывода
+        Returns:
+            (str) Возвращает готовую строку с данными
+        """
         return f'''
 сокращенно: {self.asset_choice['sec_id']}
 наименование: {self.asset_choice['full_name']}
@@ -100,6 +104,11 @@ isn: {self.asset_choice['isn']}
 '''
 
     def telegram_text(self) -> str:
+        """
+        Подготовка информации для вывода в telegram в формате markdown
+        Returns:
+            (str) Возвращает готовую строку с данными и преобразованными элементами.
+        """
         if self.asset_choice['price_increase'] > 0:
             emoji = '📈'
         else:
@@ -119,77 +128,90 @@ isn: {self.asset_choice['isn']}
             .replace('+', '\+')
 
     def crate_img(self) -> Path:
-        width = 1040
-        height = 560
+        """
+        Создает изображение используя данные актива.
+        Returns:
+            (Path) Возвращает полный путь до изображения.
+        """
+        width = 950
+        height = 1150
 
-        img = Image.new(mode="RGBA", size=(width, height), color=(255, 255, 255, 100))
-        draw_background = ImageDraw.Draw(img)
+        img = Image.new(mode="RGBA", size=(width, height), color=(21, 21, 21))
 
-        draw_background.rounded_rectangle((0, 0, width, height), fill=(45, 144, 235), radius=0)
-        draw_background.rounded_rectangle((20, 20, width - 20, height - 20), fill=(255, 255, 255), radius=10)
+        # добавление фона
+        background_vector = Image.open(config.vector, formats=["PNG"])
+        img.paste(background_vector, (0, 0), background_vector)
 
-        # Создание дуги
-        end_arc = 180 + (1.8 * self.asset_choice['price_increase'])
-        antialias = 4
-        w = width * antialias
-        h = height * antialias
-        img_arc = Image.new(size=(w, h), mode='RGBA', color=(255, 255, 255, 100))
-        img_arc.putalpha(0)
-        draw_arc = ImageDraw.Draw(img_arc)
+        # добавление шрифтов
+        path_font_montserrat_extrabold = config.path_file / "font/Montserrat-ExtraBold.ttf"
+        path_font_montserrat_medium = config.path_file / "font/Montserrat-Medium.ttf"
+        path_font_montserrat_light = config.path_file / "font/Montserrat-Light.ttf"
+        path_font_montserrat_seambold = config.path_file / "font/Montserrat-SemiBold.ttf"
+        path_font_montserrat_regular = config.path_file / "font/Montserrat-Regular.ttf"
 
-        draw_arc.arc([((w / 2) - 192 * antialias, 38 * antialias),
-                      ((w / 2) + 192 * antialias, 422 * antialias)],
-                     start=0, end=360,
-                     fill=(161, 161, 161, 100), width=5 * antialias)
-        if end_arc >= 180:
-            color_percent = (1, 149, 25)
-            draw_arc.arc([((w / 2) - 200 * antialias, 30 * antialias),
-                          ((w / 2) + 200 * antialias, 430 * antialias)],
-                         start=180, end=end_arc,
-                         fill=color_percent, width=20 * antialias)
+        font_ticker = ImageFont.truetype(str(path_font_montserrat_extrabold), 128)
+        font_full_name = ImageFont.truetype(str(path_font_montserrat_medium), 32)
+        font_price = ImageFont.truetype(str(path_font_montserrat_light), 110)
+        font_other = ImageFont.truetype(str(path_font_montserrat_medium), 32)
+        font_percent = ImageFont.truetype(str(path_font_montserrat_seambold), 84)
+        font_id = ImageFont.truetype(str(path_font_montserrat_seambold), 32)
+        font_date = ImageFont.truetype(str(path_font_montserrat_regular), 32)
+
+        # Выбор цвета относительно процентов за месяц
+        if self.asset_choice['price_increase'] >= 0:
+            chart_img = Image.open(config.green_chart, formats=["PNG"])
+            color_accent = (203, 252, 1)
+            price_increase = self.asset_choice['price_increase']
+        elif self.asset_choice['price_increase'] == 'nan':
+            price_increase = 0
         else:
-            color_percent = 'red'
-            draw_arc.arc([((w / 2) - 200 * antialias, 30 * antialias),
-                          ((w / 2) + 200 * antialias, 430 * antialias)],
-                         start=end_arc, end=180,
-                         fill=color_percent, width=20 * antialias)
-        img_arc = img_arc.resize((width, height), Image.Resampling.LANCZOS)
-        img_arc = img_arc.filter(ImageFilter.SMOOTH)
+            price_increase = self.asset_choice['price_increase']
+            chart_img = Image.open(config.red_chart, formats=["PNG"])
+            color_accent = (252, 1, 1)
 
-        # добавление текста
+        img.paste(chart_img, (0, 0), chart_img)
 
-        path_font_main = str(config.font_heavy)
-        path_font_second = str(config.font_book)
-
-        font_main = ImageFont.truetype(path_font_main, 80)
-        font_secoond = ImageFont.truetype(path_font_second, 80)
-        font_2_b = ImageFont.truetype(path_font_main, 50)
-        font_2_s = ImageFont.truetype(path_font_second, 50)
-        font_3_s = ImageFont.truetype(path_font_second, 24)
-        font_3_b = ImageFont.truetype(path_font_main, 24)
-
-        img_text = Image.new(mode="RGBA", size=(width, height), color=(255, 255, 255, 100))
+        img_text = Image.new(mode="RGBA", size=(width, height), color=(255, 255, 255))
         draw_text = ImageDraw.Draw(img_text)
         img_text.putalpha(0)
 
-        draw_text.text(((width / 2) - 205, 220), f'{self.asset_choice["price_increase"]:.{2}f} %/мс',
-                       fill=color_percent, anchor="rs", font=font_3_s)
-        draw_text.text((width / 2, 220), self.asset_choice['sec_id'], fill="black", anchor="ms", font=font_main)
-        draw_text.text((width / 2, 290), f"{self.asset_choice['quantity'] } шт.",
-                       fill="black", anchor="ms", font=font_2_b)
-        draw_text.text((width / 2, 340), self.asset_choice['full_name'], fill="black", anchor="ms", font=font_3_b)
-        draw_text.text((width / 2, 400), self.asset_choice['price_str'], fill="black", anchor="ms", font=font_2_b)
-        draw_text.text((width / 6, 530), self.asset_choice['isn'], fill="black", anchor="ms", font=font_3_s)
-        draw_text.text((width - (width / 4), 530), str(self.date_create), fill="black", anchor="ms",
-                       font=font_3_s)
+        # добавление текста
+        draw_text.text((width / 2, 230), self.asset_choice['sec_id'],
+                       fill="white", anchor="ms", font=font_ticker)
+        draw_text.text((width / 2, 290), self.asset_choice['full_name'],
+                       fill="white", anchor="ms", font=font_full_name)
+        price = self.asset_choice['price']
+        price_ru = self.asset_choice['price_ru']
+        currency = 'руб'
+        if price != price_ru:
+            currency = price["currency"]
+            price = price["stock_current_prise"]
+            draw_text.text((width / 2, 400), f'({price} {currency})',
+                           fill="white", anchor="ms", font=font_other)
+        draw_text.text((width / 2, 500), f"{price_ru:.{2}f}",
+                       fill="white", anchor="ms", font=font_price)
+        draw_text.text((405, 550), 'RUB', fill=color_accent, anchor="rs",
+                       font=font_other)
+        draw_text.text((540, 550), f'{self.asset_choice["quantity"]} ШТ',
+                       fill=color_accent, anchor="ls", font=font_other)
+        draw_text.line([(435, 540), (510, 540)], fill=color_accent, width=2)
+        draw_text.text(((width / 2), 745),
+                       f'{price_increase:.{2}f}%',
+                       fill=color_accent, anchor="ms", font=font_percent)
+        draw_text.text((width / 2, 1080), self.asset_choice['isn'],
+                       fill="white", anchor="ms", font=font_id)
+        draw_text.text((width / 2, 1120), str(self.date_create),
+                       fill="white", anchor="ms", font=font_date)
 
-        img.alpha_composite(img_arc, (0, 0))
         img.alpha_composite(img_text, (0, 0))
         img_name = config.path_file / f"img/{str(self.date_create).split('.')[0]}.png"
         img.save(img_name, "PNG")
         return Path(img_name).resolve()
 
     def print_asset(self):
+        """
+        Функция для вывода результата с подготовленными данными в консоль
+        """
         print(f'''
 {'-' * 60}
 {self.inform}
@@ -200,6 +222,11 @@ isn: {self.asset_choice['isn']}
 
     @staticmethod
     def _is_integer(n: float) -> bool:
+        """
+        Проверка на число
+        Returns:
+            (bool) является ли числом
+        """
         try:
             float(n)
         except ValueError:
@@ -208,6 +235,17 @@ isn: {self.asset_choice['isn']}
             return float(n).is_integer()
 
     def percentage_change(self, price: float, seci: str, boardid: str) -> float:
+        """
+        Изменения цены за последний месяц в процентах с МосБиржи
+
+        Parameters:
+            price (float): Текущая цена
+            seci (str): Тикет актива
+            boardid (str): вид актива
+
+        Returns:
+            percent(float): Месячное изменение цены в процентах
+        """
         day = date.today() - timedelta(days=30)
         percent = 0
         match self.asset:
@@ -228,11 +266,13 @@ isn: {self.asset_choice['isn']}
 
     def choice_obj(self, data: list) -> dict:
         """
-        Выбор конкретной акции
+        Преобразование выбранного актива
+
         Parameters:
-            data: table with assets
+            data (list): Данные выбранного актива
+
         Returns:
-            dict: dict with random asset's data
+            return (dict): Словарь преобразованных данных
         """
         # Проверка наличия записей в графе с ценой
         try:
@@ -269,6 +309,13 @@ isn: {self.asset_choice['isn']}
 
     @staticmethod
     def file_exist(path: str, acton):
+        """
+        Проверка существования файла
+
+        Parameters:
+            path (str): Путь до файла
+            acton: Функция по запуску загрузки файла
+        """
         path = pathlib.Path(path)
         if not path.exists():
             try:
@@ -283,8 +330,10 @@ isn: {self.asset_choice['isn']}
                 asyncio.run(acton())
                 sleep(4)
 
-
-    def _get_msb_stock_exchange(self):
+    def _get_mb_stock_exchange(self):
+        """
+        Загрузка данных из json
+        """
         # open JSON
         for file_name in [config.stocks_file, config.bpif_file,
                           config.ofz_file, config.bonds_file]:
@@ -314,6 +363,12 @@ isn: {self.asset_choice['isn']}
 
     @staticmethod
     def _get_short_table(json_dict: dict) -> pandas.DataFrame:
+        """
+        Получение укороченной таблицы, только с необходимыми столбцами
+
+        Parameters:
+            json_dict (dict): json данные таблицы
+        """
         data = json_dict['securities']['data']
         columns = json_dict['securities']['metadata']
 
@@ -323,10 +378,12 @@ isn: {self.asset_choice['isn']}
         return short_table
 
     def _get_spb_stock_exchange(self):
-        """Получить данные с питерской биржи"""
-        self.file_exist(config.cpb_file, spbd)
+        """
+        Получить данные с питерской биржи
+        """
+        self.file_exist(config.spb_file, spbd)
 
-        spb_table = pandas.read_csv(config.cpb_file, sep=';')
+        spb_table = pandas.read_csv(config.spb_file, sep=';')
 
         # название e_full_name
         # код s_RTS_code
@@ -344,10 +401,30 @@ isn: {self.asset_choice['isn']}
 
     @staticmethod
     def _get_currency_price(currency: str) -> str:
+        """
+        Получение текучего курса рубля относительно валюты.
+
+        Parameters:
+            currency(str): Валюта к которой необходимо найти курс.
+        Returns:
+            all_currencies(str): Текущая стоимость валюты в рублях
+        """
         all_currencies = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
         return all_currencies['Valute'][currency]['Value']
 
     def _get_current_price(self, sec_id_choice: str) -> dict:
+        """
+        Получение текущей цены актива с СПБ
+
+        Parameters:
+            sec_id_choice(str): Тикер актива для поиска
+        Returns:
+            info(dict): Словарь с ключевыми значениями актива:
+                stock_current_prise - стоимость в валюте
+                currency - валюта
+                rub_prise - стоимость в рублях
+                price_increase - изменение в цены за месяц в процентах
+        """
         msft = yf.Ticker(sec_id_choice)
         try:
             stock_current_prise = msft.info['currentPrice']
@@ -364,7 +441,7 @@ isn: {self.asset_choice['isn']}
                     'rub_prise': rub_prise,
                     'price_increase': price_increase}
         except KeyError as er:
-            if msft.info['regularMarketPrice'] is None :
+            if msft.info['regularMarketPrice'] is None:
                 print('f')
                 self.choice()
             Exception(er)
