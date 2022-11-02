@@ -149,7 +149,15 @@ isn: {self.asset_choice['isn']}
         path_font_montserrat_seambold = config.path_file / "font/Montserrat-SemiBold.ttf"
         path_font_montserrat_regular = config.path_file / "font/Montserrat-Regular.ttf"
 
-        font_ticker = ImageFont.truetype(str(path_font_montserrat_extrabold), 128)
+        ticker = self.asset_choice['sec_id']
+
+        if len(ticker) <= 10:
+            font_ticker = ImageFont.truetype(str(path_font_montserrat_extrabold), 128)
+        elif 15 >= len(ticker) > 10:
+            size = 128 - ((len(ticker) - 10) * 7)
+            font_ticker = ImageFont.truetype(str(path_font_montserrat_extrabold), size)
+        else:
+            font_ticker = ImageFont.truetype(str(path_font_montserrat_extrabold), 23)
         font_full_name = ImageFont.truetype(str(path_font_montserrat_medium), 32)
         font_price = ImageFont.truetype(str(path_font_montserrat_light), 110)
         font_other = ImageFont.truetype(str(path_font_montserrat_medium), 32)
