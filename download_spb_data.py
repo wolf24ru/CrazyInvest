@@ -27,7 +27,7 @@ async def download_data():
 
     with requests.get(url_spb, allow_redirects=True) as r:
         if r.status_code == 200:
-            with open(config.cpb_file, 'wb') as f:
+            with open(config.spb_file, 'wb') as f:
                 f.write(r.content)
         else:
             driver = webdriver.Remote('http://selenium:4444/wd/hub', desired_capabilities=DesiredCapabilities.CHROME)
