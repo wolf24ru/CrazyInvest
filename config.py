@@ -6,7 +6,7 @@ bpif_file = path_file / 'data_json/bpif.json'
 ofz_file = path_file / 'data_json/ofz.json'
 bonds_file = path_file / 'data_json/bonds.json'
 
-cpb_file = path_file / 'spb_data/SPB.csv'
+spb_file = path_file / 'spb_data/SPB.csv'
 
 _for_img = path_file / 'for_img'
 
