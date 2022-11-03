@@ -1,4 +1,4 @@
-from download_msb_data import download_data as msb
+from download_mb_data import download_data as msb
 from download_spb_data import download_data as spd
 import asyncio
 from datetime import datetime

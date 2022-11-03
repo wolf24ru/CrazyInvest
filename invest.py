@@ -18,7 +18,7 @@ path_file = pathlib.Path(__file__).parent.resolve()
 sys.path.append(str(path_file))
 
 import config
-from download_msb_data import download_data as msbd
+from download_mb_data import download_data as msbd
 from download_spb_data import download_data as spbd
 
 
