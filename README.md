@@ -18,8 +18,8 @@ from invest import CrazyInvest
 
 if __name__ == '__main__':
     
-    limit = 4000,
-    asset = 'stock',
+    limit = 4000
+    asset = 'stock'
     stock_market = ['MB']
     
     random_activ = CrazyInvest(limit, asset, stock_market=stock_market)
